@@ -13,6 +13,8 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { formatMemberSinceDate } from "../../utils/date";
+import useFollow from "../../hooks/useFollow";
+import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -23,8 +25,9 @@ const ProfilePage = () => {
 	const profileImgRef = useRef(null);
 	
 	const {username} = useParams();
-	
-	const isMyProfile = true;
+
+	const {follow, isPending} = useFollow();
+	const {data:authUser} = useQuery({queryKey: ['authUser']});
 	
 	const { data:user, isLoading, refetch, isRefetching } = useQuery({
 		queryKey: ['userProfile'],
@@ -40,9 +43,13 @@ const ProfilePage = () => {
 				throw new Error(error);
 			}
 		}
-	})
+	});
+
+	const {updateProfile, isUpdatingProfile} = useUpdateUserProfile();
 	
+	const isMyProfile = authUser._id === user?._id;
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt);
+	const amIFollowing = authUser?.following.includes(user?._id);
 	
 	useEffect(() => {
 		refetch()
@@ -124,21 +131,25 @@ const ProfilePage = () => {
 								</div>
 							</div>
 							<div className='flex justify-end px-4 mt-5'>
-								{isMyProfile && <EditProfileModal />}
+								{isMyProfile && <EditProfileModal authUser={authUser} />}
 								{!isMyProfile && (
 									<button
 										className='btn btn-outline rounded-full btn-sm'
-										onClick={() => alert("Followed successfully")}
+										onClick={() => follow(user?._id)}
 									>
-										Follow
+										{isPending && "Loading..."}
+										{!isPending && amIFollowing && "Unfollow"}
+										{!isPending && !amIFollowing && "Follow" }
 									</button>
 								)}
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => alert("Profile updated successfully")}
-									>
-										Update
+										onClick={async () => {
+											await updateProfile({coverImg, profileImg})
+										}
+									}>
+										{isUpdatingProfile ? "Updating..." : "Update"}
 									</button>
 								)}
 							</div>
