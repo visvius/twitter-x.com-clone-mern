@@ -1,0 +1,27 @@
+backend:
+jwt: authentication
+bcryptjs: hashing password
+cloudinary: storing images
+mongoDB: database using mongoose
+tanstack for performing async fetch request with caching
+
+routes and controllers for authentication, users, posts, notification
+database models for users, posts, notifications,authentication
+
+
+toAdd: 
+Notification for comments
+use setQuery to remove reloading after commenting
+asking if you want to delete the post permanently before deleting
+
+frontend:
+React
+tailwind for css + daisy UI for components
+react-router-dom for routing 
+react-icons for icons
+
+
+Issues faced: 
+designing the database models and how they interact
+too many refreshes fixed by tanstack
+how to navigate when logging in and logging out as tanstack query uses memorization
